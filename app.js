@@ -1,18 +1,23 @@
 'use strict';
 
+// load any environment files
+if('ENV_FILE' in process.env){
+    require('node-env-file')(process.env.ENV_FILE);
+}
+
 //dependencies
 var config = require('./config'),
-    express = require('express'),
-    cookieParser = require('cookie-parser'),
-    bodyParser = require('body-parser'),
-    session = require('express-session'),
-    mongoStore = require('connect-mongo')(session),
-    http = require('http'),
-    path = require('path'),
-    passport = require('passport'),
-    mongoose = require('mongoose'),
-    helmet = require('helmet'),
-    csrf = require('csurf');
+express = require('express'),
+cookieParser = require('cookie-parser'),
+bodyParser = require('body-parser'),
+session = require('express-session'),
+mongoStore = require('connect-mongo')(session),
+http = require('http'),
+path = require('path'),
+passport = require('passport'),
+helmet = require('helmet'),
+csrf = require('csurf'),
+pgp = require('pg-promise')({ promiseLib: require('bluebird') });
 
 //create express app
 var app = express();
@@ -23,15 +28,11 @@ app.config = config;
 //setup the web server
 app.server = http.createServer(app);
 
-//setup mongoose
-app.db = mongoose.createConnection(config.mongodb.uri);
-app.db.on('error', console.error.bind(console, 'mongoose connection error: '));
-app.db.once('open', function () {
-  //and... we have a data store
-});
+// setup ORM
+app.db = require("./orm/index")(pgp(process.env.DATABASE_URL));
 
 //config data models
-require('./models')(app, mongoose);
+require('./models')(app, app.db);
 
 //settings
 app.disable('x-powered-by');

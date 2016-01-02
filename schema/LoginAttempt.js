@@ -1,13 +1,15 @@
 'use strict';
 
-exports = module.exports = function(app, mongoose) {
-  var attemptSchema = new mongoose.Schema({
-    ip: { type: String, default: '' },
-    user: { type: String, default: '' },
-    time: { type: Date, default: Date.now, expires: app.config.loginAttempts.logExpiration }
-  });
-  attemptSchema.index({ ip: 1 });
-  attemptSchema.index({ user: 1 });
-  attemptSchema.set('autoIndex', (app.get('env') === 'development'));
-  app.db.model('LoginAttempt', attemptSchema);
+exports = module.exports = function(app, db) {
+    var LoginAttempt = new db.Schema('LoginAttempt', {
+	table: 'loginAttempt',
+	fields: {
+	    id: { type: Number, key: true, auto: true },
+	    ip: { type: String, default: '' },
+	    Account: { type: Number, column: account_id },
+	    time: { type: Date, default: db.literal("CURRENT_TIMESTAMP")  }
+	}
+    });
+    LoginAttempt.belongsTo('Account', { field: "Account" });
+    LoginAttempt.flushAfter(app.config.loginAttempts.logExpiration);
 };

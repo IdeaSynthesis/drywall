@@ -1,44 +1,35 @@
 'use strict';
 
-exports = module.exports = function(app, mongoose) {
-  var accountSchema = new mongoose.Schema({
-    user: {
-      id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-      name: { type: String, default: '' }
-    },
-    isVerified: { type: String, default: '' },
-    verificationToken: { type: String, default: '' },
-    name: {
-      first: { type: String, default: '' },
-      middle: { type: String, default: '' },
-      last: { type: String, default: '' },
-      full: { type: String, default: '' }
-    },
-    company: { type: String, default: '' },
-    phone: { type: String, default: '' },
-    zip: { type: String, default: '' },
-    status: {
-      id: { type: String, ref: 'Status' },
-      name: { type: String, default: '' },
-      userCreated: {
-        id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        name: { type: String, default: '' },
-        time: { type: Date, default: Date.now }
-      }
-    },
-    statusLog: [mongoose.modelSchemas.StatusLog],
-    notes: [mongoose.modelSchemas.Note],
-    userCreated: {
-      id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-      name: { type: String, default: '' },
-      time: { type: Date, default: Date.now }
-    },
-    search: [String]
-  });
-  accountSchema.plugin(require('./plugins/pagedFind'));
-  accountSchema.index({ user: 1 });
-  accountSchema.index({ 'status.id': 1 });
-  accountSchema.index({ search: 1 });
-  accountSchema.set('autoIndex', (app.get('env') === 'development'));
-  app.db.model('Account', accountSchema);
+exports = module.exports = function(app, db) {
+    var Account = new db.Schema('Account', {
+	table: "account",
+	fields: {
+	    id: { type: Number, key: true, auto: true },
+	    guid: { type: String, length: 36, on_insert: true, default: db.uuid },
+	    email: { type: String, length: 64, column: displayemail },
+	    name: { type: String, length: 64, column: displayname },
+	    alias: { type: String, length: 32 },
+	    created: { type: Date, default: db.literal("CURRENT_TIMESTAMP"), on_insert: true },
+	    modified: { type: Date, default: db.literal("CURRENT_TIMESTAMP"), on_update: true, nullable: true },
+	    lastlogin: { type: Date, nullable: true },
+	    active: { type: Boolean, default: true },
+	    details: { type: Object, parser: db.hstore() },
+	    info: { type: Object, parser: db.hstore() },
+	    roles: { type: Array, parser: String },
+	    groups: { type: Array, parser: Number }
+	}});
+    
+    Account.hasMany("Auth", { as: "Auths", field: "Account" });
+    
+    Account.belongsToMany('AdminGroup', { as: "Groups", field: "groups" });
+    
+    Account.methods.canPlayRoleOf = function(role) 
+    {
+	if (this.roles && this.roles.indexOf(role) >= 0) return true;
+	return false;
+    };
+    
+    Account.methods.defaultReturnUrl = function() {
+	return "/";
+    };
 };

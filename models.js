@@ -1,16 +1,15 @@
 'use strict';
 
-exports = module.exports = function(app, mongoose) {
-  //embeddable docs first
-  require('./schema/Note')(app, mongoose);
-  require('./schema/Status')(app, mongoose);
-  require('./schema/StatusLog')(app, mongoose);
-  require('./schema/Category')(app, mongoose);
-
-  //then regular docs
-  require('./schema/User')(app, mongoose);
-  require('./schema/Admin')(app, mongoose);
-  require('./schema/AdminGroup')(app, mongoose);
-  require('./schema/Account')(app, mongoose);
-  require('./schema/LoginAttempt')(app, mongoose);
+exports = module.exports = function(app, db) {
+    // regular documentation
+    require('./schema/Account')(app, db);
+    require('./schema/Auth')(app, db);
+    require('./schema/AdminGroup')(app, db);
+    require('./schema/LoginAttempt')(app, db);
+    
+    // then the specialized bits
+    require('./schema/Note')(app, db);
+    require('./schema/Status')(app, db);
+    require('./schema/StatusLog')(app, db);
+    require('./schema/Category')(app, db);    
 };

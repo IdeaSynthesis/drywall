@@ -10,11 +10,13 @@
     "async": "^1.x.x",
     "backbone": "^1.x.x",
     "bcrypt": "^0.8.x",
+    "bluebird": "^3.1.1",
     "body-parser": "^1.x.x",
     "compression": "^1.x.x",
     "connect-mongo": "^0.8.x",
     "cookie-parser": "^1.x.x",
     "csurf": "^1.x.x",
+    "ejs": "^2.3.4",
     "emailjs": "^0.3.x",
     "express": "^4.12.x",
     "express-session": "^1.x.x",
@@ -23,6 +25,7 @@
     "method-override": "^2.x.x",
     "mongoose": "^4.x.x",
     "morgan": "^1.x.x",
+    "node-uuid": "^1.4.7",
     "passport": "^0.2.x",
     "passport-facebook": "^2.x.x",
     "passport-github": "^0.1.x",
@@ -31,6 +34,7 @@
     "passport-oauth": "^1.x.x",
     "passport-tumblr": "^0.1.x",
     "passport-twitter": "^1.x.x",
+    "pg-promise": "^2.8.5",
     "serve-static": "^1.9.x",
     "underscore": "^1.x.x"
   },
@@ -53,6 +57,7 @@
     "jquery": "^2.x.x",
     "jquery.cookie": "^1.x.x",
     "moment": "^2.x.x",
+    "node-env-file": "^0.1.8",
     "respond.js": "^1.x.x"
   }
 }

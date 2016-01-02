@@ -1,13 +1,16 @@
 'use strict';
 
-exports = module.exports = function(app, mongoose) {
-  var adminGroupSchema = new mongoose.Schema({
-    _id: { type: String },
-    name: { type: String, default: '' },
-    permissions: [{ name: String, permit: Boolean }]
-  });
-  adminGroupSchema.plugin(require('./plugins/pagedFind'));
-  adminGroupSchema.index({ name: 1 }, { unique: true });
-  adminGroupSchema.set('autoIndex', (app.get('env') === 'development'));
-  app.db.model('AdminGroup', adminGroupSchema);
+exports = module.exports = function(app, db) {
+    var AdminGroup = new db.Schema({
+	table: "admingroup",
+	fields: {
+	    id: { type: Number, key: true, auto: true },
+	    guid: { type: String, length: 36, on_insert: true, default: db.uuid },	    
+	    name: { type: String, default: '' },
+	    permissions: { type: Array, parser: JSON },
+	    created: { type: Date, default: db.literal("CURRENT_TIMESTAMP"), on_insert: true },
+	    modified: { type: Date, default: db.literal("CURRENT_TIMESTAMP"), on_update: true, nullable: true }
+	}
+    });
+    AdminGroup.hasMany("Account", { as: "Accounts", field: "groups" });
 };
