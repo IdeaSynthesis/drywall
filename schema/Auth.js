@@ -1,12 +1,12 @@
 'use strict';
 
 exports = module.exports = function(app, db) {
-    var Auth = new db.Schema('Auth', {
+    var Auth = db.Schema('Auth', {
 	table: "auth",
 	fields: {
 	    id: { type: Number, key: true, auto: true },
 	    guid: { type: String, length: 36, on_insert: true, default: db.uuid },
-	    Account: { type: Number, column: account_id },
+	    Account: { type: Number, column: 'account_id' },
 	    email: { type: String, length: 64 },
 	    password: { type: String, length: 1280, transform: 'encryptPassword', nullable: true },
 	    created: { type: Date, default: db.literal("CURRENT_TIMESTAMP"), on_insert: true },
@@ -18,7 +18,7 @@ exports = module.exports = function(app, db) {
 	    provider: { type: String, length: 16 },
 	    resetguid: { type: String, length: 36, nullable: true },
 	    newemail: { type: String, length: 64, nullable: true },
-	    newemailguid: { type: String: length: 36, nullable: true }
+	    newemailguid: { type: String, length: 36, nullable: true }
 	}});
     Auth.belongsTo('Account', { field: "Account" });
     Auth.statics.encryptPassword = function(password, done) {

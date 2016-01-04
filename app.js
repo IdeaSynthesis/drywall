@@ -6,12 +6,10 @@ if('ENV_FILE' in process.env){
 }
 
 //dependencies
-var config = require('./config'),
-express = require('express'),
+var express = require('express'),
 cookieParser = require('cookie-parser'),
 bodyParser = require('body-parser'),
 session = require('express-session'),
-mongoStore = require('connect-mongo')(session),
 http = require('http'),
 path = require('path'),
 passport = require('passport'),
@@ -19,11 +17,10 @@ helmet = require('helmet'),
 csrf = require('csurf'),
 pgp = require('pg-promise')({ promiseLib: require('bluebird') });
 
+var port = parseInt(process.env.PORT) || 8000;
+
 //create express app
 var app = express();
-
-//keep reference to config
-app.config = config;
 
 //setup the web server
 app.server = http.createServer(app);
@@ -36,9 +33,18 @@ require('./models')(app, app.db);
 
 //settings
 app.disable('x-powered-by');
-app.set('port', config.port);
+app.set('port', port);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+
+var session_options = {
+    resave: true,
+    saveUninitialized: true,
+    secret: process.env.CRYPTO_KEY
+};
+
+if('SESSION_STORE' in process.env) session_options['store'] = require(process.env.SESSION_STORE)(session);
+//mongoStore = require('connect-mongo')(session),store: new mongoStore({ url: config.mongodb.uri })
 
 //middleware
 app.use(require('morgan')('dev'));
@@ -47,13 +53,8 @@ app.use(require('serve-static')(path.join(__dirname, 'public')));
 app.use(require('method-override')());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser(config.cryptoKey));
-app.use(session({
-  resave: true,
-  saveUninitialized: true,
-  secret: config.cryptoKey,
-  store: new mongoStore({ url: config.mongodb.uri })
-}));
+app.use(cookieParser(process.env.CRYPTO_KEY));
+app.use(session(session_options));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(csrf({ cookie: { signed: true } }));
@@ -69,9 +70,9 @@ app.use(function(req, res, next) {
 });
 
 //global locals
-app.locals.projectName = app.config.projectName;
+app.locals.projectName = process.env.PROJECT_NAME;
 app.locals.copyrightYear = new Date().getFullYear();
-app.locals.copyrightName = app.config.companyName;
+app.locals.copyrightName = process.env.COMPANY_NAME;
 app.locals.cacheBreaker = 'br34k-01';
 
 //setup passport
@@ -90,7 +91,14 @@ app.utility.slugify = require('./util/slugify');
 app.utility.workflow = require('./util/workflow');
 
 //listen up
-app.server.listen(app.config.port, function(){
+app.server.listen(port, function(){
   //and... we're live
-  console.log('Server is running on port ' + config.port);
+  console.log('Server is running on port ' + port);
 });
+
+// see if we're explicitly asked to load up a shell
+if('OPEN_REPL' in process.env){
+    var repl = require('repl');
+    var r = repl.start({ prompt: "Drywall> ", useColors: true, terminal: true, useGlobal: false, ignoreUndefined: true });
+    r.context.app = app;
+}

@@ -1,7 +1,7 @@
 'use strict';
 
 exports = module.exports = function(app, db) {
-    var Status = new db.Schema("Status", {
+    var Status = db.Schema("Status", {
 	table: "status",
 	fields: {
 	    id: { type: Number, key: true, auto: true },

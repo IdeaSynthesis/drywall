@@ -4,6 +4,7 @@ exports = module.exports = function(app, db) {
     // regular documentation
     require('./schema/Account')(app, db);
     require('./schema/Auth')(app, db);
+    require('./schema/Verification')(app, db);
     require('./schema/AdminGroup')(app, db);
     require('./schema/LoginAttempt')(app, db);
     

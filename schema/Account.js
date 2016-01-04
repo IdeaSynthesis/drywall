@@ -1,13 +1,13 @@
 'use strict';
 
 exports = module.exports = function(app, db) {
-    var Account = new db.Schema('Account', {
+    var Account = db.Schema('Account', {
 	table: "account",
 	fields: {
 	    id: { type: Number, key: true, auto: true },
 	    guid: { type: String, length: 36, on_insert: true, default: db.uuid },
-	    email: { type: String, length: 64, column: displayemail },
-	    name: { type: String, length: 64, column: displayname },
+	    email: { type: String, length: 64, column: 'displayemail' },
+	    name: { type: String, length: 64, column: 'displayname' },
 	    alias: { type: String, length: 32 },
 	    created: { type: Date, default: db.literal("CURRENT_TIMESTAMP"), on_insert: true },
 	    modified: { type: Date, default: db.literal("CURRENT_TIMESTAMP"), on_update: true, nullable: true },
